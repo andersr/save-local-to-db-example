@@ -32,7 +32,7 @@ export function createNote({
   return prisma.note.create({
     data: {
       title,
-      body,
+      body: body || "",
       user: {
         connect: {
           id: userId,

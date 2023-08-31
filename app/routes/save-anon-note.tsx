@@ -1,11 +1,14 @@
-import type { LoaderFunction } from "@remix-run/node";
+import type { ActionArgs, LoaderFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useNavigate, useSubmit } from "@remix-run/react";
 import { useEffect } from "react";
 import { LiaSpinnerSolid } from "react-icons/lia";
-import { getUserId } from "~/session.server";
-import { ANON_USER_LOCAL_STORAGE_CONTENT } from "~/shared";
-import { newNoteAction as action } from "~/shared/newNoteAction.server";
+import { createNote } from "~/models/note.server";
+import { getUserId, requireUserId } from "~/session.server";
+import {
+  ANON_USER_LOCAL_STORAGE_CONTENT,
+  LOCAL_NOTE_SAVED_PARAM,
+} from "~/shared";
 
 export const loader: LoaderFunction = async ({ request }) => {
   // TODO: redirect to login with redirect-to param back to this route
@@ -14,7 +17,21 @@ export const loader: LoaderFunction = async ({ request }) => {
   return json({});
 };
 
-export { action };
+export const action = async ({ request }: ActionArgs) => {
+  const userId = await requireUserId(request);
+
+  const formData = await request.formData();
+  const title = formData.get("title");
+  const body = formData.get("body")?.toString() || "";
+
+  if (typeof title !== "string" || title.length === 0) {
+    throw redirect("/", 400);
+  }
+
+  const note = await createNote({ body, title, userId });
+
+  return redirect(`/notes/${note.id}?${LOCAL_NOTE_SAVED_PARAM}=true`);
+};
 
 export default function SaveAnonNote() {
   const navigate = useNavigate();
