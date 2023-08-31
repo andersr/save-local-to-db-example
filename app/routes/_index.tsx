@@ -1,5 +1,11 @@
 import type { V2_MetaFunction } from "@remix-run/node";
 import { Link } from "@remix-run/react";
+import { useLocalStorage } from "~/hooks";
+import {
+  ANON_USER_LOCAL_STORAGE_CONTENT,
+  REDIRECT_TO_PARAM,
+  SAVE_ANON_ROUTE,
+} from "~/shared";
 
 import { useOptionalUser } from "~/utils";
 
@@ -7,6 +13,34 @@ export const meta: V2_MetaFunction = () => [{ title: "Remix Notes" }];
 
 export default function Index() {
   const user = useOptionalUser();
+
+  const [value, setValue] = useLocalStorage(
+    ANON_USER_LOCAL_STORAGE_CONTENT,
+    "",
+  );
+
+  const noteHasContent = (value as string).trim() !== "";
+
+  function displaySaveStatus() {
+    if (noteHasContent) {
+      return (
+        <span>
+          Saved locally.{" "}
+          <Link to={`/login${setParam()}`} className="text-gray-400 underline">
+            Save to my notes
+          </Link>
+          .
+        </span>
+      );
+    }
+    return "";
+  }
+
+  function setParam() {
+    return noteHasContent
+      ? `?${REDIRECT_TO_PARAM}=${encodeURIComponent(SAVE_ANON_ROUTE)}`
+      : "";
+  }
   return (
     <main className="relative min-h-screen bg-white sm:flex sm:items-center sm:justify-center">
       <div className="relative sm:pb-16 sm:pt-8">
@@ -135,6 +169,16 @@ export default function Index() {
             ))}
           </div>
         </div>
+      </div>
+      <div className="w-[400px] mx-auto">
+        <textarea
+          className="w-full rounded-md border-2 border-blue-500 px-3 py-2 text-lg leading-6"
+          value={value}
+          rows={8}
+          onChange={(e) => setValue(e.target.value)}
+          placeholder="Write something..."
+        />
+        <div className="py-2 text-sm text-slate-500">{displaySaveStatus()}</div>
       </div>
     </main>
   );
