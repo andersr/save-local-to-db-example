@@ -11,7 +11,6 @@ import {
 } from "~/shared";
 
 export const loader: LoaderFunction = async ({ request }) => {
-  // TODO: redirect to login with redirect-to param back to this route
   const userId = await getUserId(request);
   if (!userId) return redirect("/");
   return json({});
