@@ -33,7 +33,7 @@ describe("smoke tests", () => {
     };
     cy.login();
 
-    cy.visitAndCheck("/");
+    cy.visitAndCheck("/notes");
 
     cy.findByRole("link", { name: /notes/i }).click();
     cy.findByText("No notes yet");
