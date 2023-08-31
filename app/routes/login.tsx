@@ -5,7 +5,10 @@ import { useEffect, useRef } from "react";
 
 import { verifyLogin } from "~/models/user.server";
 import { createUserSession, getUserId } from "~/session.server";
+import { REDIRECT_TO_PARAM } from "~/shared";
 import { safeRedirect, validateEmail } from "~/utils";
+
+const redirectToInput = "redirectTo";
 
 export const loader = async ({ request }: LoaderArgs) => {
   const userId = await getUserId(request);
@@ -17,7 +20,8 @@ export const action = async ({ request }: ActionArgs) => {
   const formData = await request.formData();
   const email = formData.get("email");
   const password = formData.get("password");
-  const redirectTo = safeRedirect(formData.get("redirectTo"), "/");
+  const redirectTo = safeRedirect(formData.get(redirectToInput), "/");
+
   const remember = formData.get("remember");
 
   if (!validateEmail(email)) {
@@ -62,7 +66,7 @@ export const meta: V2_MetaFunction = () => [{ title: "Login" }];
 
 export default function LoginPage() {
   const [searchParams] = useSearchParams();
-  const redirectTo = searchParams.get("redirectTo") || "/notes";
+  const redirectToParam = searchParams.get(REDIRECT_TO_PARAM) || "/notes";
   const actionData = useActionData<typeof action>();
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
@@ -133,7 +137,7 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <input type="hidden" name="redirectTo" value={redirectTo} />
+          <input type="hidden" name={redirectToInput} value={redirectToParam} />
           <button
             type="submit"
             className="w-full rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 focus:bg-blue-400"

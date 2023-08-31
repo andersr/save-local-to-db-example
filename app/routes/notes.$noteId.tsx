@@ -4,12 +4,20 @@ import {
   Form,
   isRouteErrorResponse,
   useLoaderData,
+  useLocation,
+  useNavigate,
   useRouteError,
+  useSearchParams,
 } from "@remix-run/react";
+import { useEffect } from "react";
 import invariant from "tiny-invariant";
 
 import { deleteNote, getNote } from "~/models/note.server";
 import { requireUserId } from "~/session.server";
+import {
+  ANON_USER_LOCAL_STORAGE_CONTENT,
+  LOCAL_NOTE_SAVED_PARAM,
+} from "~/shared";
 
 export const loader = async ({ params, request }: LoaderArgs) => {
   const userId = await requireUserId(request);
@@ -33,7 +41,17 @@ export const action = async ({ params, request }: ActionArgs) => {
 
 export default function NoteDetailsPage() {
   const data = useLoaderData<typeof loader>();
+  let location = useLocation();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const localNoteSaved = searchParams.get(LOCAL_NOTE_SAVED_PARAM);
 
+  useEffect(() => {
+    if (localNoteSaved) {
+      window.localStorage.removeItem(ANON_USER_LOCAL_STORAGE_CONTENT);
+      navigate(location.pathname, { replace: true });
+    }
+  }, [localNoteSaved, location.pathname, navigate]);
   return (
     <div>
       <h3 className="text-2xl font-bold">{data.note.title}</h3>
