@@ -9,7 +9,7 @@ import {
   useRouteError,
   useSearchParams,
 } from "@remix-run/react";
-import { useLayoutEffect } from "react";
+import { useEffect } from "react";
 import invariant from "tiny-invariant";
 
 import { deleteNote, getNote } from "~/models/note.server";
@@ -46,7 +46,7 @@ export default function NoteDetailsPage() {
   const [searchParams] = useSearchParams();
   const localNoteSaved = searchParams.get(LOCAL_NOTE_SAVED_PARAM);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (localNoteSaved) {
       window.localStorage.removeItem(ANON_USER_LOCAL_STORAGE_CONTENT);
       navigate(location.pathname, { replace: true });
