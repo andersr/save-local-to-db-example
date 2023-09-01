@@ -48,7 +48,7 @@ export default function Index() {
         {user ? (
           <div>
             <Link to="/notes" className="">
-              View Notes for {user.email} TODO: come back to this.
+              View Notes for {user.email}
             </Link>
           </div>
         ) : (
