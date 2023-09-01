@@ -65,6 +65,9 @@ export default function SaveAnonNote() {
 
     if (localContent) {
       handleAnonNote(localContent);
+    } else {
+      console.warn("no local content found");
+      navigate("/");
     }
   }, [navigate, submit]);
 
